@@ -1,0 +1,40 @@
+ import numpy as np
+from sklearn import datasets, svm, metrics
+from sklearn.model_selection import train_test_split
+from skimage.io import imread
+from skimage.transform import resize
+import os
+
+# Step 1: Load and preprocess the image data
+def load_images(folder):
+    images = []
+    labels = []
+    for filename in os.listdir(folder):
+        if filename.startswith("cat"):
+            labels.append(0)  # 0 for cat
+        else:
+            labels.append(1)  # 1 for dog
+        img = imread(os.path.join(folder, filename))
+        img_resized = resize(img, (100, 100))  # Resize image to a fixed size
+        images.append(img_resized.flatten())  # Flatten the image into a 1D array
+    return np.array(images), np.array(labels)
+
+# Load images from the dataset folder
+data_folder = "path_to_your_dataset_folder"
+images, labels = load_images(data_folder)
+
+# Step 2: Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(images, labels, test_size=0.2, random_state=42)
+
+# Step 3: Train the SVM model
+classifier = svm.SVC(kernel='linear')  # Linear kernel
+classifier.fit(X_train, y_train)
+
+# Step 4: Test and evaluate the model
+predicted = classifier.predict(X_test)
+
+# Print classification report
+print("Classification report:\n", metrics.classification_report(y_test, predicted))
+
+# Print confusion matrix
+print("Confusion matrix:\n", metrics.confusion_matrix(y_test, predicted))
